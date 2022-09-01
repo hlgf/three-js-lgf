@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        overflow: hidden;
+      }
+
+      .webgl {
+        position: fixed;
+        top: 0;
+        left: 0;
+        outline: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas class="webgl"></canvas>
+    <script src="../three/build/three.min.js"></script>
+    <script src="../three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../three/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script src="../three/examples/js/shaders/CopyShader.js"></script>
+    <script src="../three/examples/js/postprocessing/EffectComposer.js"></script>
+
+    <script src="../three/examples/js/postprocessing/RenderPass.js"></script>
+
+    <script src="../three/examples/js/shaders/DotScreenShader.js"></script>
+    <script src="../three/examples/js/postprocessing/DotScreenPass.js"></script>
+
+    <script src="../three/examples/js/shaders/DigitalGlitch.js"></script>
+    <script src="../three/examples/js/postprocessing/GlitchPass.js"></script>
+
+    <script src="../three/examples/js/postprocessing/ShaderPass.js"></script>
+
+    <script src="../three/examples/js/shaders/RGBShiftShader.js"></script>
+
+    <script src="../three/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="../three/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <script src="../three/examples/js/postprocessing/SMAAPass.js"></script>
+    <script src="../three/dat.gui.min.js"></script>
+    <script src="../three/stats.min.js"></script>
+    <script>
+      const OrbitControls = THREE.OrbitControls;
+      const GLTFLoader = THREE.GLTFLoader;
+      const EffectComposer = THREE.EffectComposer;
+      const RenderPass = THREE.RenderPass;
+      const DotScreenPass = THREE.DotScreenPass;
+      const GlitchPass = THREE.GlitchPass;
+      const ShaderPass = THREE.ShaderPass;
+      const RGBShiftShader = THREE.RGBShiftShader;
+      const UnrealBloomPass = THREE.UnrealBloomPass;
+      const SMAAPass = THREE.SMAAPass;
+      const BufferGeometryUtils = THREE.BufferGeometryUtils;
+      const staticURL = "../static";
+    </script>
+    <script src="./script.js"></script>
+  </body>
+</html>

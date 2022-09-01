@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>36 - Adding details the scene</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        overflow: hidden;
+      }
+
+      .webgl {
+        position: fixed;
+        top: 0;
+        left: 0;
+        outline: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas class="webgl"></canvas>
+    <script src="../../three/build/three.min.js"></script>
+    <script src="../../three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../../three/dat.gui.min.js"></script>
+    <script src="../../three/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="../../three/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="./shaders/fireflies/firefliesFragment.js"></script>
+    <script src="./shaders/fireflies/firefliesVertex.js"></script>
+    <script src="./shaders/portal/portalFragment.js"></script>
+    <script src="./shaders/portal/portalVertex.js"></script>
+    <script>
+      const OrbitControls = THREE.OrbitControls;
+      const GLTFLoader = THREE.GLTFLoader;
+      const DRACOLoader = THREE.DRACOLoader;
+      const staticURL = "../static";
+      const dracoUrl = "../../three/draco/";
+    </script>
+    <script src="./script.js"></script>
+  </body>
+</html>

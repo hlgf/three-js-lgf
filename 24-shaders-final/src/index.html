@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        overflow: hidden;
+      }
+
+      .webgl {
+        position: fixed;
+        top: 0;
+        left: 0;
+        outline: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas class="webgl"></canvas>
+    <!-- 如果不是通过src的形式,而是写在标签中时,可以通过标签的textContent属性进行注入 -->
+    <!-- <script id="vertexShader" src="./shaders/test/vertex.glsl" type="x-shader/x-vertex"></script> -->
+    <script src="./shaders/test/fragment.js"></script>
+    <script src="./shaders/test/vertex.js"></script>
+    <!-- <script id="fragmentShader" src="./shaders/test/fragment.glsl" type="x-shader/x-fragment"></script> -->
+    <script id="fragmentShader" type="x-shader/x-fragment">
+      uniform vec3 uColor;
+      uniform sampler2D uTexture;
+
+      varying vec2 vUv;
+      varying float vElevation;
+
+      void main()
+      {
+          vec4 textureColor = texture2D(uTexture, vUv);
+          textureColor.rgb *= vElevation * 2.0 + 0.65;
+          gl_FragColor = textureColor;
+          // gl_FragColor = vec4(vUv, 1.0, 1.0);
+      }
+    </script>
+    <script src="../../three/build/three.min.js"></script>
+    <script src="../../three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../../three/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="../../three/examples/js/loaders/DRACOLoader.js"></script>
+    <script>
+      const OrbitControls = THREE.OrbitControls;
+      const GLTFLoader = THREE.GLTFLoader;
+      const DRACOLoader = THREE.DRACOLoader;
+      const staticURL = "../../static";
+    </script>
+    <script src=" ../../three/dat.gui.min.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

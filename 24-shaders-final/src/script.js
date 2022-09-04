@@ -39,18 +39,24 @@ for (let i = 0; i < count; i++) {
 
 geometry.setAttribute('aRandom', new THREE.BufferAttribute(randoms, 1))
 
+console.log('geometry',geometry)
 console.dir(document.getElementById('fragmentShader'))
 
 // Material
 // map,alphaMap,opacity,color,etc都无法通过属性来定义,需要通过着色器来定义 
+// ShaderMaterial有些属性是不需要在shadwe中再进行定义,已经内置了,定义反而会报错'projectionMatrix' : redefinition
 const material = new THREE.ShaderMaterial({
     // vertexShader: document.getElementById('vertexShader').textContent,
+    // 如果色值为rgba,则需要设置transparent
     fragmentShader: document.getElementById('fragmentShader').textContent,
+    transparent:true,
     vertexShader: testVertexShader(),
     wireframe:true,
     side:THREE.DoubleSide, // 双面
 
     // fragmentShader: testFragmentShader(),
+    // uniforms传递过去的变量可以在vertex顶点着色器中使用同样的定义同样的类型同样的变量进行接受
+    // 从规范上一般都会添加u前缀
     uniforms:
     {
         uFrequency: { value: new THREE.Vector2(10, 5) },
@@ -66,7 +72,20 @@ gui.add(material.uniforms.uFrequency.value, 'y').min(0).max(20).step(0.01).name(
 // Mesh
 const mesh = new THREE.Mesh(geometry, material)
 mesh.scale.y = 2 / 3
-scene.add(mesh)
+
+
+const basicsMesh = new THREE.Mesh(geometry,new THREE.RawShaderMaterial({
+    fragmentShader: basicsFragement(),
+    vertexShader: basicsVertex(),
+    transparent:true,
+    wireframe:true,
+    uniforms:
+    {
+        uColor: { value: new THREE.Color('orange') },
+        uTexture: { value: flagTexture }
+    }
+}))
+scene.add(mesh,basicsMesh)
 
 /**
  * Sizes

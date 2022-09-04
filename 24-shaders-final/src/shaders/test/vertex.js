@@ -1,5 +1,6 @@
 var testVertexShader = () =>
-    `uniform vec2 uFrequency;
+    `
+    uniform vec2 uFrequency;
     uniform float uTime;
     
     varying vec2 vUv;
@@ -8,10 +9,12 @@ var testVertexShader = () =>
     void main()
     {
         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-    
+       // 进行位置的抵消防止飘走
         float elevation = sin(modelPosition.x * uFrequency.x - uTime) * 0.1;
         elevation += sin(modelPosition.y * uFrequency.y - uTime) * 0.1;
-    
+   // 以上步骤也可写为
+    // modelPosition.z += sin(modelPosition.x * uFrequency.x - uTime) * 0.1;
+    // modelPosition.z += sin(modelPosition.y * uFrequency.x - uTime) * 0.1;
         modelPosition.z += elevation;
     
         vec4 viewPosition = viewMatrix * modelPosition;

@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui' */
 
+
 /**
  * Base
  */
@@ -112,7 +113,6 @@ window.addEventListener('mousemove', (event) => {
 
 window.addEventListener('click', () => {
     earthLabel.visible = false
-    controls.target = camera.position
     if (currentIntersect) {
         switch (currentIntersect.object) {
             case object1:
@@ -124,10 +124,21 @@ window.addEventListener('click', () => {
             case object2:
                 console.log('click on object 2')
                 earthLabel.visible = true
-                controls.target = object2.position
-                camera.lookAt(object2.position)
-                controls.update()
-                tween.play();
+                // controls.target = object2.position
+                gsap.to(controls.target, {
+                    duration: 10,
+                    x: object2.position.x,
+                    y: object2.position.y,
+                    z: object2.position.z,
+                    // value: object2.position,
+                    ease: "power3.inOut",
+                    // yoyo: true,
+                    repeat: 0,
+                    onComplete: () => {
+                        // camera.lookAt(new THREE.Vector3(0, 20, 0));
+                        console.log('触发了')
+                    },
+                })
                 break
 
             case object3:

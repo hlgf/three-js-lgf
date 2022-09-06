@@ -77,7 +77,9 @@ const customUniforms = {
     uTime: { value: 0 }
 }
 
+// 在材料合并前对材料进行相关的处理,一般都是进行替换操作,
 material.onBeforeCompile = (shader) => {
+    console.log('shader', shader)
     shader.uniforms.uTime = customUniforms.uTime
 
     shader.vertexShader = shader.vertexShader.replace(
@@ -89,6 +91,7 @@ material.onBeforeCompile = (shader) => {
 
             mat2 get2dRotateMatrix(float _angle)
             {
+                // 二维旋转矩阵
                 return mat2(cos(_angle), - sin(_angle), sin(_angle), cos(_angle));
             }
         `

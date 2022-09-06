@@ -65,6 +65,7 @@ const glassMaterial = new THREE.MeshPhysicalMaterial({
 let colors = ["red", "blue", "green", "gray", "orange", "purple"];
 
 let selectColor = (index) => {
+  console.log('触发了')
   bodyMaterial.color.set(colors[index]);
   frontMaterial.color.set(colors[index]);
   hoodMaterial.color.set(colors[index]);
@@ -81,7 +82,7 @@ let selectMaterial = (index) => {
   frontMaterial.clearcoatRoughness = materials[index].value;
   hoodMaterial.clearcoatRoughness = materials[index].value;
 };
-window.onload=() => {
+window.onload = () => {
   // 把渲染器插入到dom中
   // console.log(canvasDom.value);
   canvasDom.appendChild(renderer.domElement);
@@ -104,9 +105,10 @@ window.onload=() => {
   // 添加gltf汽车模型
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath(staticURL+"/draco/");
+  dracoLoader.setDecoderPath(staticURL + "/draco/");
   loader.setDRACOLoader(dracoLoader);
-  loader.load(staticURL+"/models/bmw01.glb", (gltf) => {
+  loader.load(staticURL + "/models/bmw01.glb", (gltf) => {
+    console.log('gltf', gltf)
     const bmw = gltf.scene;
     // console.log(gltf);
     bmw.traverse((child) => {

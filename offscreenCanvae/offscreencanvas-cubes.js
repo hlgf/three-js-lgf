@@ -1,4 +1,4 @@
-import * as THREE from './three.module.js';
+import * as THREE from '../three/build/three.module.js';
 
 const state = {
   width: 300,   // canvas default
@@ -27,6 +27,13 @@ function main(data) {
     const light = new THREE.DirectionalLight(color, intensity);
     light.position.set(-1, 2, 4);
     scene.add(light);
+  }
+
+  {
+    scene.add(new THREE.AxesHelper(3))
+    /*   const controls = new THREE.OrbitControls()
+      controls.enable = true
+      scene.add() */
   }
 
   const boxWidth = 1;

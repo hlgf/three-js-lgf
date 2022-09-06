@@ -1,0 +1,250 @@
+﻿<html>
+    <head>
+        <style>
+            html,body{
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+        <script src="js/three.min.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script type="text/javascript">
+            //日更测试账号：1310273590265821
+            //大帅的账号：2955079655898093
+            var scene,camera,renderer,controls;
+            var uid;
+            function URLParams(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                                                var r = window.location.search.substr(1).match(reg);
+                                                if (r != null)
+                                                    return unescape(r[2]);
+                                                return null;
+            }
+            function init(){
+
+                uid = URLParams('uid');
+                if(!uid)uid = "2955079655898093";
+
+                scene = new THREE.Scene();
+
+                scene.fog = new THREE.Fog(0xffffff, 0.01, 6);
+
+                camera = new THREE.PerspectiveCamera(75, document.body.clientWidth / document.body.clientHeight, 0.01, 1000);
+                camera.position.set(-3, 2.8, 3);
+                
+                renderer = new THREE.WebGLRenderer({
+                    antialias:true
+                });
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize(document.body.clientWidth, document.body.clientHeight);
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                document.getElementById("container").appendChild(renderer.domElement);
+                
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.autoRotate=true;
+                controls.autoRotateSpeed=.4;
+                controls.maxZoom=2;
+                controls.maxDistance=4;
+
+                createSkyBox();
+
+                addLight();
+
+                createFloor();
+
+                loop();
+
+                getArticleByThisYear((res)=>{
+                    buildCity(res);
+                });
+            }
+            const randomColor = () => parseInt(`0x${(~~(Math.random() * (1 << 24))).toString(16)}`);
+            function buildCity(data){
+                console.log(data);
+                /*
+                建造规则：
+                1.每个月是一块区域
+                2.如果当月没有文章，则该区域为工地样貌
+                3.每篇文章是一个building
+                4.building的面积在区域面积里平分
+                5.digg_count越高，building越高
+                6.comment_count是居民数量（做不做待定）
+                */
+
+                for(var i=0;i<12;i++){
+                    var mothlyData = data[i];
+                    
+                    
+
+                    var sx = Math.floor(i%4)*1-1.5;
+                    var sy = Math.floor(i/4)*1-1;
+
+                    //渲染所有区块位置
+                    var texture_file = './assets/floor_green.png';
+
+                    if(!mothlyData)texture_file = './assets/floor_working.png';
+
+                    var texture = new THREE.TextureLoader().load(texture_file);
+
+                    var geometry = new THREE.PlaneGeometry( 1, 1 );
+                    var material = new THREE.MeshPhongMaterial( {side: THREE.DoubleSide,map:texture} );
+                    var plane = new THREE.Mesh( geometry, material );
+                    plane.rotateX(Math.PI/2);
+                    plane.receiveShadow = true;
+                    plane.position.set(sx,-0.29,sy);
+                    scene.add( plane );
+
+                    if(!mothlyData)continue;
+
+                    var articleCount = Math.min(mothlyData.length,30);
+                    console.log((i+1)+"月有文章："+articleCount);
+
+                    var bpadding = 0.05;
+                    
+                    var vwidth = 5;
+                    var xNum = 5;
+
+                    if(articleCount==1){
+                        vwidth=2;
+                    }else if(articleCount==2){
+                        vwidth=2.5;
+                        xNum=1;
+                        bpadding=0.05;
+                    }else if(articleCount==3){
+                        vwidth=3;
+                        xNum=2;
+                        bpadding=0.1;
+                    }else if(articleCount==4){
+                        vwidth=3;
+                        xNum=2;
+                        bpadding=0.15;
+                    }else if(articleCount==5){
+                        xNum=3;
+                        vwidth=4;
+                    }else if(articleCount>=6 && articleCount<10){
+                        xNum=3;
+                    }else{
+                        vwidth=8;
+                    }
+
+                    var bwidth = 1/vwidth;
+
+                    var totalw = Math.min(articleCount,xNum)*bwidth;
+                    var totalh = Math.min(Math.ceil(articleCount/xNum),6)*bwidth-bpadding;
+
+                    for(var j=0;j<articleCount;j++){
+                        
+                        var bSize = {
+                            w:bwidth-bpadding,
+                            h:bwidth-bpadding
+                        }
+
+                        if(articleCount==3&&j==articleCount-1){
+                            bSize.w=bSize.w*2+bpadding;
+                        }else if(articleCount==5&&j==articleCount-1){
+                            bSize.w=bSize.w*2+bpadding;
+                        }else if(articleCount==7&&j==articleCount-1){
+                            bSize.w=bSize.w*3+bpadding*2;
+                        }
+
+                        var item = mothlyData[j];
+                        $("#userName").text(item.author_name);
+                        var bx = sx+Math.floor(j%xNum)*bwidth-.5+bSize.w/2+(1-totalw)/2;
+                        var by = sy+Math.floor(j/xNum)*bwidth-.5+bSize.h/2+(1-totalh)/2;
+                        // console.log(sx,sy);
+                        // console.log("bx:"+bx,"by:"+by);
+                        createBuilding(bx,by,bSize,item.digg_count);
+                    }
+                }
+            }
+            function createBuilding(x,y,size,height){
+                let rHeight = height/2000;
+                if(rHeight<1)rHeight+=(1-rHeight)*.2;
+                const geometry = new THREE.BoxGeometry( size.w, rHeight, size.h );
+                const material = new THREE.MeshStandardMaterial( {color: 0xf2f2f2} );
+                const cube = new THREE.Mesh( geometry, material );
+                cube.position.set(x,rHeight/2-.29,y);
+                cube.castShadow=true;
+                cube.receiveShadow = true;
+                scene.add( cube );
+            }
+            function createFloor(){
+
+                var geometry = new THREE.PlaneGeometry( 15, 15 );
+                var material = new THREE.MeshStandardMaterial( {color: 0x333333,side: THREE.DoubleSide} );
+                var plane = new THREE.Mesh( geometry, material );
+                plane.rotateX(Math.PI/2);
+                plane.receiveShadow = true;
+                plane.position.set(0,-.292,0);
+                scene.add( plane );
+            }
+            function addLight(){
+                //todo light
+                var ambientLight = new THREE.AmbientLight( 0xd5d5d5 );
+                ambientLight.intensity=.6;
+                scene.add( ambientLight );
+
+                var frontDirLight = new THREE.DirectionalLight(0xffffff);
+
+                frontDirLight.position.x=1;
+                frontDirLight.position.y=1.3;
+                frontDirLight.position.z=1;
+                frontDirLight.intensity=.6;
+                frontDirLight.castShadow=true;
+
+                // var helper=new THREE.DirectionalLightHelper(frontDirLight,1);
+                // scene.add( helper );
+                scene.add( frontDirLight );
+            }
+            function createSkyBox(){
+                var sphereGeometry = new THREE.SphereGeometry(1, 50, 50);
+                sphereGeometry.scale(50, 50, -50);
+
+                var sphereMaterial = new THREE.MeshBasicMaterial({});
+
+                var sphere = new THREE.Mesh(sphereGeometry,sphereMaterial);
+                scene.add(sphere);
+            }
+            function loop(){
+                requestAnimationFrame(loop);
+
+                controls.update();
+                
+                renderer.render(scene, camera);
+            }
+            function getArticleByThisYear(cb){
+                //https://api.juejin.cn/content_api/v1/article/query_list
+                $.ajax({
+                    url:'https://e0b75de1-90c7-4c11-9d12-a8bc84c4d081.bspapp.com/http/jjskyline?uid='+uid,
+                    dataType:'json',
+                    success:(res)=>{
+                        if(cb)cb(res);
+                    }
+                });
+            }
+            window.onload=init;
+        </script>
+    </head>
+    <body>
+        <div style="position: absolute;top:0;left:0;width:100%;text-align: center;font-size: 40;color:#333;padding:10px 0px;text-shadow: 0px 2px 4px #999;">
+            <div id='userName'>XXX</div>
+            <div style="font-size: 24px;">掘金城市2021</div>
+        </div>
+        <div style="position: fixed;right:0px;bottom:60px;color:#fff;background: rgba(0,0,0,.3);padding:10px;font-size: 20px;width:200px;">
+            <img src="assets/qrcode.jpg" style="width:100%;"/>
+            <div>程序员交流互助Q群</div>
+            <pre>
+④群：1059850921
+③群：1108750812
+②群：610394408
+①群：1026509663</pre>
+        </div>
+        <div style="position: absolute;bottom:0;left:0;width:100%;text-align: center;font-size: 24;color:#fff;padding:10px 0px;text-shadow: 0px 2px 4px #333;">
+            <div style="font-size: 24px;">关注微信公众号“大帅老猿”，更多精彩教程和项目源码</div>
+        </div>
+        <div id="container"></div>
+    </body>
+</html>

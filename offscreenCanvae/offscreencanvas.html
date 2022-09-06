@@ -48,6 +48,7 @@
     }
     const offscreen = canvas.transferControlToOffscreen();
     const worker = new Worker('offscreencanvas-cubes.js', { type: 'module' });
+    /* 不能传递dom过去,因为worker无法操作dom,会报错,而THREE会操作dom */
     worker.postMessage({ type: 'main', canvas: offscreen }, [offscreen]);
 
     function sendSize() {

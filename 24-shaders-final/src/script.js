@@ -39,7 +39,6 @@ for (let i = 0; i < count; i++) {
 
 geometry.setAttribute('aRandom', new THREE.BufferAttribute(randoms, 1))
 
-console.dir(document.getElementById('fragmentShader'))
 
 // Material
 // map,alphaMap,opacity,color,etc都无法通过属性来定义,需要通过着色器来定义 
@@ -47,8 +46,8 @@ const material = new THREE.ShaderMaterial({
     // vertexShader: document.getElementById('vertexShader').textContent,
     fragmentShader: document.getElementById('fragmentShader').textContent,
     vertexShader: testVertexShader(),
-    wireframe:true,
-    side:THREE.DoubleSide, // 双面
+    wireframe: true,
+    side: THREE.DoubleSide, // 双面
 
     // fragmentShader: testFragmentShader(),
     uniforms:

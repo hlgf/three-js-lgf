@@ -15,6 +15,11 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
+
+
+
+
+
 /**
  * Objects
  */
@@ -36,6 +41,29 @@ const object3 = new THREE.Mesh(
 object3.position.x = 2
 
 scene.add(object1, object2, object3)
+
+// html标签
+const earthDiv = document.createElement('div');
+earthDiv.className = 'label';
+earthDiv.textContent = 'Earth';
+// 可以绑定点击事件
+earthDiv.onclick = () => {
+    console.log('点击事件是否生效')
+}
+
+
+const earthLabel = new THREE.CSS2DObject(earthDiv);
+earthLabel.visible = false
+object2.add(earthLabel);
+earthLabel.position.clone(object2)
+earthLabel.position.y += 0.8
+earthLabel.layers.set(0);
+console.log('earthLabel', earthLabel)
+
+// 会自动查找所有的CSS2DObject
+labelRenderer = new THREE.CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(labelRenderer.domElement);
 
 /**
  * Raycaster
@@ -59,6 +87,7 @@ window.addEventListener('resize', () => {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
 
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
     // Update camera
     camera.aspect = sizes.width / sizes.height
     camera.updateProjectionMatrix()
@@ -82,15 +111,23 @@ window.addEventListener('mousemove', (event) => {
 })
 
 window.addEventListener('click', () => {
+    earthLabel.visible = false
+    controls.target = camera.position
     if (currentIntersect) {
         switch (currentIntersect.object) {
             case object1:
                 console.log('click on object 1')
-                alert('点击了')
+                console.log('(object1.position)', object1.position)
+                camera.lookAt(object1.position)
                 break
 
             case object2:
                 console.log('click on object 2')
+                earthLabel.visible = true
+                controls.target = object2.position
+                camera.lookAt(object2.position)
+                controls.update()
+                tween.play();
                 break
 
             case object3:
@@ -111,6 +148,7 @@ scene.add(camera)
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
+controls.saveState()
 
 /**
  * Renderer
@@ -133,60 +171,58 @@ const tick = () => {
     object1.position.y = Math.sin(elapsedTime * 0.3) * 1.5
     object2.position.y = Math.sin(elapsedTime * 0.8) * 1.5
     object3.position.y = Math.sin(elapsedTime * 1.4) * 1.5
-  
+
     // Cast a fixed ray
     const rayOrigin = new THREE.Vector3(- 3, 1, 0)
     const rayDirection = new THREE.Vector3(1, 0, 0)
     //  矢量化为1
     rayDirection.normalize()
-// 设置了原点和矢量化的方向,是固定的值 
-    raycaster.set(rayOrigin, rayDirection) 
+    // 设置了原点和矢量化的方向,是固定的值 
+    raycaster.set(rayOrigin, rayDirection)
     // 可视化 射线
     const arrowHelper = new THREE.ArrowHelper(
-  raycaster.ray.direction,
-  raycaster.ray.origin,
-  15,
-  0x00ffff,
-  1,
-  0.5,
-)
-scene.add(arrowHelper)    
-   
+        raycaster.ray.direction,
+        raycaster.ray.origin,
+        15,
+        0x00ffff,
+        1,
+        0.5,
+    )
+    scene.add(arrowHelper)
 
-  // 借助鼠标事件所获取 到的xy从相机视角开始的相交,初始设置的原点和食量方向 将会失效
-  raycaster.setFromCamera(mouse, camera)
+
+    // 借助鼠标事件所获取 到的xy从相机视角开始的相交,初始设置的原点和食量方向 将会失效
+    raycaster.setFromCamera(mouse, camera)
     const objectsToTest = [object1, object2, object3]
     // intersects为观察传入的对象是否被射线穿过,穿过 则返回,返回值为数组类型
     const intersects = raycaster.intersectObjects(objectsToTest)
 
-       /*-------------------
-     11111111111111111111111111111111111111 
-     */
+    /*-------------------
+  11111111111111111111111111111111111111 
+  */
     // 先还原成原色
-    for(const object of objectsToTest)
-    {
+    for (const object of objectsToTest) {
         object.material.color.set('#ff0000')
     }
-// 设置与射线相交的集合为红色
-    for(const intersect of intersects)
-    {
+    // 设置与射线相交的集合为红色
+    for (const intersect of intersects) {
         intersect.object.material.color.set('#0000ff')
     }
 
 
-/* 22222222222222222222222222222222222222222222222222 只是换 了一种js查找对象的方法*/
- /*    for(const intersect of intersects)
-    {
-        intersect.object.material.color.set('#0000ff')
-    }
-
-    for(const object of objectsToTest)
-    {
-        if(!intersects.find(intersect => intersect.object === object))
-        {
-            object.material.color.set('#ff0000')
-        }
-    }*/
+    /* 22222222222222222222222222222222222222222222222222 只是换 了一种js查找对象的方法*/
+    /*    for(const intersect of intersects)
+       {
+           intersect.object.material.color.set('#0000ff')
+       }
+   
+       for(const object of objectsToTest)
+       {
+           if(!intersects.find(intersect => intersect.object === object))
+           {
+               object.material.color.set('#ff0000')
+           }
+       }*/
 
 
     if (intersects.length) {
@@ -203,6 +239,8 @@ scene.add(arrowHelper)
 
         currentIntersect = null
     }
+
+    labelRenderer.render(scene, camera);
 
     // Update controls
     controls.update()
